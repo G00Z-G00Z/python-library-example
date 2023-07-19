@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/monokai.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="plugin/customcontrols/style.css">
+    <link rel="stylesheet" href="plugin/chalkboard/style.css">
+
+    <link rel="stylesheet" href="plugin/reveal-pointer/pointer.css" />
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+    <script type="text/javascript">
+        var forgetPop = true;
+        function onPopState(event) {
+            if (forgetPop) {
+                forgetPop = false;
+            } else {
+                parent.postMessage(event.target.location.href, "app://obsidian.md");
+            }
+        }
+        window.onpopstate = onPopState;
+        window.onmessage = event => {
+            if (event.data == "reload") {
+                window.document.location.reload();
+            }
+            forgetPop = true;
+        }
+
+        function fitElements() {
+            const itemsToFit = document.getElementsByClassName('fitText');
+            for (const item in itemsToFit) {
+                if (Object.hasOwnProperty.call(itemsToFit, item)) {
+                    var element = itemsToFit[item];
+                    fitElement(element, 1, 1000);
+                    element.classList.remove('fitText');
+                }
+            }
+        }
+
+        function fitElement(element, start, end) {
+
+            let size = (end + start) / 2;
+            element.style.fontSize = `${size}px`;
+
+            if (Math.abs(start - end) < 1) {
+                while (element.scrollHeight > element.offsetHeight) {
+                    size--;
+                    element.style.fontSize = `${size}px`;
+                }
+                return;
+            }
+
+            if (element.scrollHeight > element.offsetHeight) {
+                fitElement(element, start, size);
+            } else {
+                fitElement(element, size, end);
+            }
+        }
+
+
+        document.onreadystatechange = () => {
+            fitElements();
+            if (document.readyState === 'complete') {
+                if (window.location.href.indexOf("?export") != -1) {
+                    parent.postMessage(event.target.location.href, "app://obsidian.md");
+                }
+                if (window.location.href.indexOf("print-pdf") != -1) {
+                    let stateCheck = setInterval(() => {
+                        clearInterval(stateCheck);
+                        window.print();
+                    }, 250);
+                }
+            }
+        };
+
+
+    </script>
+</head>
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    # Creating a Python Package🐍📦
+
+                    <div class="block">
+
+                        Author: Eduardo Gomez / g00z-g00z
+
+                        Date: 2023-07-18
+
+                    </div>
+                </div>
+                </script>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    ## Why do you need your code to be 📦?
+
+                    - When your are **reusing** a lot of the same functions/classes
+                    - When you want split your code into specific packages that are **independent** from each other
+                    - **When you want to share your code with others**, the best way is to package your code
+                </div>
+                </script>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    ## Benefits of packaging 📦
+
+                    - Packages can be **independent** from each other. Allowing you to test and distribute code easily
+                    and allows independent development from other parts of the code
+
+                    - Can be managed by `pip` as any other dependency
+
+                    - **Reduces code duplication**
+
+                    - Can be labeled with **versions**, so that they can be easily identified and versioned in the code
+                    base
+                </div>
+                </script>
+            </section>
+            <section>
+                <section data-markdown>
+                    <script type="text/template"><!-- .slide: class="drop" -->
+                    <div class=""
+                        style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                        absolute="true">
+
+                        ## Creating a package ➡
+
+                        ## Installing a package ⬇
+                    </div>
+                    </script>
+                </section>
+                <section data-markdown>
+                    <script type="text/template"><!-- .slide: class="drop" id="InstallationTypes" -->
+                    <div class=""
+                        style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                        absolute="true">
+
+                        ### 🧰Installation types
+
+                        💻Install locally
+
+                        ```shell
+                        $ pip install -e <cloned_repo_dir_in_computer>
+                            ```
+
+                            🦑Install from [Github](https://github.com)
+
+                            ```shell
+                            $ pip install git+<clone_url>
+                                ```
+
+                                🐍Install from [PyPI](https://PyPI.org/) and [Test PyPI ](https://test.PyPI.org/)
+
+                                ```shell
+                                $ pip install <package-name>
+                                    ```
+                    </div>
+                    </script>
+                </section>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    ### 📹 How to create a Package?
+
+                    <div class="block">
+
+                        [Watch this video explaining how to create python
+                        packages](https://www.youtube.com/watch?v=5KEObONUkik)
+
+                        Both the video and this section is based on [ArjanCodes](https://www.youtube.com/c/arjancodes)'s
+                        Youtube video.
+
+                    </div>
+
+
+
+                    ### 👨‍🏫Example Package Repo
+
+                    Clone this [repository](https://github.com/G00Z-G00Z/python-library-example) if you want the
+                    structure of a python package
+                </div>
+                </script>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    ## 🧰How to create a package📦
+
+                    1. 🏡Structure folder
+                    2. ✍Write some code
+                    3. 🧪Test it
+                    4. 📕Document it
+                    5. 📝Write `setup.py`
+                    6. 👷Build it
+                    7. 🌐Publish it
+                </div>
+                </script>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    ### 🏡Structure your folders
+
+                    <split left="1" right="2" gap="1">
+
+                        ```text
+                        - README.md
+                        - setup.py
+                        - package_name
+                        - README.md
+                        - __init__.py
+                        - tests/
+                        - __init__.py
+                        - test_function_1.py
+                        - sub_module_1
+                        - __init__.py
+                        - function_1.py
+                        - ...
+                        - sub_module_2
+                        - __init__.py
+                        - function_2.py
+                        ```
+
+                        <div class="block">
+
+                            In a directory, you must include this files as an example. The folder with the
+                            `package_name` is the `package` your are going to publish. Inside of it there're the
+                            functions and tests.
+
+                            Remeber to always add `__init__.py` inside each folder in the `package`
+
+                        </div>
+
+
+                    </split>
+                </div>
+                </script>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    ### ✍Write code inside the package & 🧪test it !
+
+                    Try to write _modular_. This will improve the quality of the code and allow the clients of the
+                    package to have a nicer experience
+
+                    Write _tests_ for your code that test the _functionality_ of your code. Even though it is not
+                    critical at the moment, the future developer (or the future you) will definitely be grateful
+                </div>
+                </script>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    ### 📕Document the code
+
+                    Document the functions by adding _descriptions_ and _type hints_, and fill in the `README.md` inside
+                    the package (will use it later in the `setup.py`).
+
+                    Optionally, generate documents or websites with information on how to use your package
+                </div>
+                </script>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    ### 📝 Setup.py with Setuptools
+
+                    Setuptools is a collection of tools and utilities that facilitate the packaging, distribution, and
+                    installation of Python packages. It simplifies the process of distributing software and its
+                    dependencies, making it easier for developers to share their code with others
+
+                    To install it:
+
+                    ```shell
+                    $ pip install setuptools wheel
+                    ```
+                </div>
+                </script>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    ### Make your setup.py
+
+                    This file is tells python how to install the package in your system. It has _metadata, requirements,
+                    tags, descriptions ..._ It is very important to fill it correctly
+
+                    You can fill up the _name of the package, version, requirements, testing parameters, metadata,
+                    categories, tags, descriptions etc_
+
+                    This basically tells `pip` and other developers how your package is intended to be installed
+                </div>
+                </script>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    Example of a `setup.py` from the [example
+                    repository](https://github.com/G00Z-G00Z/python-library-example)
+
+                    ```python
+                    from setuptools import find_packages, setup
+
+                    with open("./package_name/README.md", "r") as f:
+                    long_description = f.read()
+
+                    setup(
+                    name="monkey_lab_example_lib",
+                    packages=find_packages(include=["monkey_lab_example_lib"]),
+                    version="0.0.1",
+                    description="Monkey Lab example library for understaning how to create a library in Python",
+                    long_description=long_description,
+                    long_description_content_type="text/markdown",
+                    author="g00z-g00z",
+                    license="MIT",
+                    install_requires=[],
+                    test_requires=["pytest"],
+                    extras_require={"dev": ["pytest", "twine"]},
+                    setup_requires=["pytest-runner"],
+                    test_suite="awesome_lib/tests",
+                    python_requires=">=3.9",
+                    )
+                    ```
+                </div>
+                </script>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    ### 👷 Build your project
+
+                    To build your project run the following commands:
+
+                    ```shell
+                    $ cd <root_directory_of_repo>
+                        $ python setup.py bdist_wheel sdist
+                        ```
+
+                        This will generate the `dist/` folder with your package information ready to be used!
+                </div>
+                </script>
+            </section>
+            <section>
+                <section data-markdown>
+                    <script type="text/template"><!-- .slide: class="drop" -->
+                    <div class=""
+                        style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                        absolute="true">
+
+                        ## Publish your package
+
+                        ## 🐍Using PyPI ➡
+
+                        ## 🦑Using Github ⬇
+                    </div>
+                    </script>
+                </section>
+                <section data-markdown>
+                    <script type="text/template"><!-- .slide: class="drop" -->
+                    <div class=""
+                        style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                        absolute="true">
+
+                        ### 🦑Repository in Github
+
+                        If you followed the structure from the [video](https://www.youtube.com/watch?v=5KEObONUkik) or
+                        the [repository](https://github.com/G00Z-G00Z/python-library-example) you can upload the repo to
+                        GitHub and installed directly from there with the commands listed in [here](#InstallationTypes)
+
+                        The advantage of this is that the repository can be private and you do not need to build your
+                        project first.
+                    </div>
+                    </script>
+                </section>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    ### PyPI
+
+                    [PyPI](https://PyPI.org/) This is the official site for python packages. After installing it here,
+                    anyone can install it using `pip`
+
+                    ### Test PyPI
+
+                    [Test PyPI ](https://test.PyPI.org/) is a website where you can publish packages as prototypes,
+                    without commiting it to [PyPI](https://PyPI.org/)
+                </div>
+                </script>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    ### Twine
+
+                    This tool will allow you to publish your package to [PyPI](https://PyPI.org/) from the command line.
+
+                    ```shell
+                    $ pip install twine
+                    ```
+                </div>
+                </script>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    ## 🌐Create an account
+
+                    For uploading packages to [PyPI](https://PyPI.org/), you must create account in the following
+                    websites:
+
+                    - [PyPI](https://PyPI.org/): This is the official site for python packages! Must be used only for
+                    the release versions
+                    - [Test PyPI ](https://test.PyPI.org/): This is where you can upload your packages without affecting
+                    the search indexes (great for prototyping)
+                </div>
+                </script>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    ## Upload it
+
+                    You must have your credentials to upload it
+
+                    ### To Test PyPI
+
+                    ```shell
+                    $ twine upload -r testpypi dist/*
+                    ```
+
+                    Here you can test your package to see if it works before uploading it to [PyPI](https://PyPI.org/)
+
+                    ### To PyPI
+
+                    ```shell
+                    $ twine upload dist/*
+                    ```
+
+                    Look on how to use the package [here](#InstallationTypes)
+
+                    Example on how it looks in [Test PyPI example library
+                    ](https://test.pypi.org/project/my-awesome-lib/0.1.1/)
+                </div>
+                </script>
+            </section>
+            <section data-markdown>
+                <script type="text/template"><!-- .slide: class="drop" -->
+                <div class=""
+                    style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center"
+                    absolute="true">
+
+                    # Happy Coding!
+                </div>
+                </script>
+            </section>
+        </div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+    <script src="plugin/mermaid/mermaid.js"></script>
+    <script src="plugin/chart/chart.min.js"></script>
+    <script src="plugin/chart/plugin.js"></script>
+    <script src="plugin/menu/menu.js"></script>
+    <script src="plugin/customcontrols/plugin.js"></script>
+    <script src="plugin/chalkboard/plugin.js"></script>
+    <script src="plugin/reveal-pointer/pointer.js"></script>
+    <script src="plugin/elapsed-time-bar/elapsed-time-bar.js"></script>
+
+    <script>
+        function extend() {
+            var target = {};
+            for (var i = 0; i < arguments.length; i++) {
+                var source = arguments[i];
+                for (var key in source) {
+                    if (source.hasOwnProperty(key)) {
+                        target[key] = source[key];
+                    }
+                }
+            }
+            return target;
+        }
+
+        function isLight(color) {
+            let hex = color.replace('#', '');
+
+            // convert #fff => #ffffff
+            if (hex.length == 3) {
+                hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+            }
+
+            const c_r = parseInt(hex.substr(0, 2), 16);
+            const c_g = parseInt(hex.substr(2, 2), 16);
+            const c_b = parseInt(hex.substr(4, 2), 16);
+            const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+            return brightness > 155;
+        }
+
+        var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+        var isLight = isLight(bgColor);
+
+        if (isLight) {
+            document.body.classList.add('has-light-background');
+        } else {
+            document.body.classList.add('has-dark-background');
+        }
+
+        // default options to init reveal.js
+        var defaultOptions = {
+            controls: true,
+            progress: true,
+            history: true,
+            center: true,
+            transition: 'default', // none/fade/slide/convex/concave/zoom
+            plugins: [
+                RevealMarkdown,
+                RevealHighlight,
+                RevealZoom,
+                RevealNotes,
+                RevealMath.MathJax3,
+                RevealMermaid,
+                RevealChart,
+                RevealCustomControls,
+                RevealMenu,
+                RevealPointer,
+                RevealChalkboard,
+                ElapsedTimeBar
+            ],
+
+
+            allottedTime: 120 * 1000,
+
+            mathjax3: {
+                mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+            },
+            markdown: {
+                gfm: true,
+                mangle: true,
+                pedantic: false,
+                smartLists: false,
+                smartypants: false,
+            },
+
+            mermaid: {
+                theme: isLight ? 'default' : 'dark',
+            },
+
+            customcontrols: {
+                controls: [
+                    {
+                        id: 'toggle-overview',
+                        title: 'Toggle overview (O)',
+                        icon: '<i class="fa fa-th"></i>',
+                        action: 'Reveal.toggleOverview();'
+                    },
+                    {
+                        icon: '<i class="fa fa-pen-square"></i>',
+                        title: 'Toggle chalkboard (B)',
+                        action: 'RevealChalkboard.toggleChalkboard();'
+                    },
+                    {
+                        icon: '<i class="fa fa-pen"></i>',
+                        title: 'Toggle notes canvas (C)',
+                        action: 'RevealChalkboard.toggleNotesCanvas();'
+                    },
+                ]
+            },
+            menu: {
+                loadIcons: false
+            }
+        };
+
+        // options from URL query string
+        var queryOptions = Reveal().getQueryHash() || {};
+
+        var options = extend(defaultOptions, {"width": 960, "height": 700, "margin": 0.04, "controls": true, "progress": true, "slideNumber": true, "transition": "slide", "transitionSpeed": "default"}, queryOptions);
+    </script>
+
+    <script>
+        Reveal.initialize(options);
+    </script>
+</body>
+
+<!-- created with Advanced Slides -->
+
+</html>
