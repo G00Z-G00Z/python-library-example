@@ -1,13 +1,13 @@
 from setuptools import find_packages, setup
 
-with open("./awesome_lib/README.md", "r") as f:
+with open("./monkey_example_lib/README.md", "r") as f:
     long_description = f.read()
 
 setup(
-    name="my_awesome_lib",
-    packages=find_packages(include=["awesome_lib"]),
-    version="0.1.2",
-    description="My first Python library",
+    name="monkey-lab-lib-example",
+    packages=find_packages(include=["./monkey_example_lib"]),
+    version="0.0.1",
+    description="Monkey Lab example library for understaning how to create a library in Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="g00z-g00z",
